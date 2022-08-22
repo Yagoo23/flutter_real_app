@@ -1,7 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import './widgets/new_transaction.dart';
 import './widgets/transaction_list.dart';
 import './models/transaction.dart';
+import './widgets/chart.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,6 +16,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
         accentColor: Colors.amber,
+        textTheme: ThemeData.light().textTheme.copyWith(
+            headline6: TextStyle(
+                fontFamily: 'Open Sans',
+                fontWeight: FontWeight.bold,
+                fontSize: 18)),
+        fontFamily: 'Quicksand',
+        appBarTheme: AppBarTheme(
+            textTheme: ThemeData.light().textTheme.copyWith(
+                    headline6: TextStyle(
+                  fontFamily: 'Open Sans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ))),
       ),
       home: MyHomePage(),
     );
@@ -26,14 +42,22 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransactions = [
-    Transaction(
+    /* Transaction(
         id: 't1', title: 'New Shoes', amount: 69.99, date: DateTime.now()),
     Transaction(
         id: 't2',
         title: 'Weekly Groceries',
         amount: 16.53,
-        date: DateTime.now()),
+        date: DateTime.now()), */
   ];
+
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(
+        Duration(days: 7),
+      ));
+    }).toList();
+  }
 
   void _addNewTransaction(String txTitle, double txAmount) {
     final newTx = Transaction(
@@ -63,7 +87,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personal Expenses'),
+        title: Text(
+          'Personal Expenses',
+          style: TextStyle(fontFamily: 'Open Sans'),
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
@@ -76,15 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
           //mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              width: double.infinity,
-              child: Card(
-                color: Colors.blue,
-                child: Text('CHART'),
-                elevation: 5,
-              ),
-            ),
-            TransactionList(_userTransactions)
+            Chart(_recentTransactions),
+            TransactionList(_userTransactions),
           ],
         ),
       ),
